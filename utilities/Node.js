@@ -6,3 +6,5 @@ class Node {
         this.rightNode = rightNode
     }
 }
+
+export default Node
