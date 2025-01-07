@@ -1,107 +1,116 @@
 import Node from "./Node.js"
 
 class Tree {
-    // Constructing a binary search tree
+    // Constructor and Initialization Methods
     constructor(array) {
-        this.root = this.buildTree(array.sort((a, b) => a - b))
+        this.root = this.buildTree(array.sort((a, b) => a - b));
     }
 
-    // Constructing a recursive function that will organize the nodes
     buildTree(array) {
         if (array.length === 0) {
-            return null
+            return null;
         }
 
-        // Defining the different parts of the Node
-        let middleOfArray = Math.floor(array.length / 2)
-        let rootNode = array[middleOfArray]
-        let leftNode = array.slice(0, middleOfArray)
-        let rightNode = array.slice(middleOfArray + 1)
+        let middleOfArray = Math.floor(array.length / 2);
+        let rootNode = array[middleOfArray];
+        let leftNode = array.slice(0, middleOfArray);
+        let rightNode = array.slice(middleOfArray + 1);
 
-        // Returning the Node created with recursivity
-        return new Node(rootNode, this.buildTree(leftNode), this.buildTree(rightNode))
+        return new Node(rootNode, this.buildTree(leftNode), this.buildTree(rightNode));
     }
+
+    // Utility Methods
     checkRoot() {
-        if (this.root == null) {
-            return null
-        } else {
-            throw new Error("Root node not found.")
-        }
+        return this.root !== null;
     }
+
+    find(value) {
+        if (!this.checkRoot()) {
+            return null;
+        }
+
+        let currentNode = this.root;
+
+        while (currentNode) {
+            if (currentNode.rootNode === value) {
+                return currentNode;
+            } else if (currentNode.rootNode > value) {
+                currentNode = currentNode.leftNode;
+            } else {
+                currentNode = currentNode.rightNode;
+            }
+        }
+        return null;
+    }
+
+    findParent(value) {
+        let currentNode = this.root;
+
+        while (currentNode) {
+            if (currentNode.leftNode === value || currentNode.rightNode === value) {
+                return currentNode;
+            } else if (currentNode.rootNode > value) {
+                currentNode = currentNode.leftNode;
+            } else if (currentNode.rootNode < value) {
+                currentNode = currentNode.rightNode;
+            }
+        }
+        return null;
+    }
+
+    // Modification Methods
     insert(value) {
-        this.checkRoot()
-        const newNode = new Node(value)
-        let currentNode = this.root
+        if (!this.checkRoot()) {
+            this.root = new Node(value);
+            return this.root;
+        }
+
+        const newNode = new Node(value);
+        let currentNode = this.root;
 
         while (currentNode) {
             if (value === currentNode.rootNode) {
-                return currentNode
+                return currentNode;
             } else if (value <= currentNode.rootNode && currentNode.leftNode) {
-                currentNode = currentNode.leftNode
+                currentNode = currentNode.leftNode;
             } else if (value >= currentNode.rootNode && currentNode.rightNode) {
-                currentNode = currentNode.rightNode
+                currentNode = currentNode.rightNode;
             } else {
                 if (value < currentNode.rootNode) {
-                    currentNode.leftNode = newNode
-                    return
+                    currentNode.leftNode = newNode;
+                    return;
                 } else {
-                    currentNode.rightNode = newNode
-                    return
+                    currentNode.rightNode = newNode;
+                    return;
                 }
             }
         }
     }
-    find(value) {
-        this.checkRoot()
-        let currentNode = this.root
 
-        while (currentNode) {
-            if (currentNode.rootNode === value) {
-                return currentNode
-            } else if (currentNode.rootNode > value) {
-                currentNode = currentNode.leftNode
-            } else if (currentNode.rootNode < value) {
-                currentNode = currentNode.rightNode
-            }
-        }
-        return null
-    }
-    findParent(value) {
-        let currentNode = this.root
-
-        while (currentNode) {
-            if (currentNode.leftNode === value || currentNode.rightNode === value) {
-                return currentNode
-            } else if (currentNode.rootNode > value) {
-                currentNode = currentNode.leftNode
-            } else if (currentNode.rootNode < value) {
-                currentNode = currentNode.rightNode
-            }
-        }
-        return null
-    }
     deleteItem(value) {
-        this.checkRoot()
-        // We find the node with the root == value
-        let currentNode = this.find(value)
-        if (!currentNode) return null
-        let parentNode = this.findParent(currentNode.rootNode)
-
-        // Case 1: Lead Node
-        if (!currentNode.leftNode && !currentNode.rightNode) {
-
-            //Check if the current node is the root
-            if (!parentNode) {
-                this.root = null
-            } else {
-                // We delete the root node and the pointer in the parent node
-                currentNode.rootNode == parentNode.leftNode ? parentNode.leftNode = null : parentNode.rightNode = null;
-            }
-
-            return currentNode
+        if (!this.checkRoot()) {
+            return null;
         }
 
-        // Case 2: Node with two childs
+        let currentNode = this.find(value);
+        if (!currentNode) return null;
+        let parentNode = this.findParent(value);
+
+        // Case 1: Leaf Node
+        if (!currentNode.leftNode && !currentNode.rightNode) {
+            if (!parentNode) {
+                this.root = null;
+            } else {
+                if (parentNode.leftNode === currentNode) {
+                    parentNode.leftNode = null;
+                } else {
+                    parentNode.rightNode = null;
+                }
+            }
+            return currentNode;
+        }
+
+        // Case 2: Node with two children
         if (currentNode.leftNode && currentNode.rightNode) {
             let successor = currentNode.rightNode;
             let successorParent = currentNode;
@@ -121,120 +130,126 @@ class Tree {
             return currentNode;
         }
 
-        // Case 3: Node with one child 
-        const childNode = currentNode.leftNode || currentNode.rightNode
+        // Case 3: Node with one child
+        const childNode = currentNode.leftNode || currentNode.rightNode;
 
-        // Check if the current node is the root
         if (!parentNode) {
-            this.root = childNode
+            this.root = childNode;
         } else if (parentNode.leftNode === currentNode) {
-            parentNode.leftNode = childNode
+            parentNode.leftNode = childNode;
         } else {
-            parentNode.rightNode = childNode
+            parentNode.rightNode = childNode;
         }
 
-        return currentNode
+        return currentNode;
     }
+
+    rebalance() {
+        if (!this.checkRoot()) {
+            return null;
+        }
+
+        let nodeList = [];
+
+        this.traverseLevels([this.root], (levelArray) => {
+            nodeList = nodeList.concat(levelArray);
+        });
+
+        nodeList = nodeList.map(node => node.rootNode); // Extract values from nodes
+        nodeList.sort((a, b) => a - b); // Sort the values
+
+        this.root = this.buildTree(nodeList); // Rebuild the tree with sorted values
+    }
+
+    // Traversal Methods
     levelOrder(callback = null) {
         if (!callback) {
-            throw new Error("Callback function required")
+            throw new Error("Callback function required");
         }
-        let nodeQueue = []
-        let nodeArray = []
+        let nodeQueue = [];
+        let nodeArray = [];
 
         function recursiveNodePushing(node = null) {
-
             if (node) {
-                nodeArray.push(node)
-                if (node.leftNode) nodeQueue.push(node.leftNode)
-                if (node.rightNode) nodeQueue.push(node.rightNode)
+                nodeArray.push(node);
+                if (node.leftNode) nodeQueue.push(node.leftNode);
+                if (node.rightNode) nodeQueue.push(node.rightNode);
 
                 if (nodeQueue.length === 0) return;
 
-                recursiveNodePushing(nodeQueue.shift())
+                recursiveNodePushing(nodeQueue.shift());
             }
         }
 
         if (this.root) {
-            nodeQueue.push(this.root)
-            recursiveNodePushing()
+            nodeQueue.push(this.root);
+            recursiveNodePushing();
         }
-        nodeArray.forEach(node => callback(node.rootNode))
+        nodeArray.forEach(node => callback(node.rootNode));
     }
-    traverseLevels(array, callback) {
 
-        let levelArray = []
+    traverseLevels(array, callback) {
+        let levelArray = [];
         if (array.length == 0) {
-            return
+            return;
         }
 
         array.forEach((currentNode) => {
             if (!currentNode.leftNode && !currentNode.rightNode) {
-                return
+                return;
             }
-            if (currentNode.leftNode) levelArray.push(currentNode.leftNode)
-            if (currentNode.rightNode) levelArray.push(currentNode.rightNode)
-        })
+            if (currentNode.leftNode) levelArray.push(currentNode.leftNode);
+            if (currentNode.rightNode) levelArray.push(currentNode.rightNode);
+        });
 
-        callback(levelArray)
-        traverseLevels(levelArray, callback)
+        callback(levelArray);
+        this.traverseLevels(levelArray, callback);
     }
+
+    // Property Methods
     height(node) {
         if (!node) {
-            return -1
+            return -1;
         }
-        let height = 0
+        let height = 0;
 
-        this.traverseLevels([node], () => { height++ })
-        return height
+        this.traverseLevels([node], () => { height++ });
+        return height;
     }
-    depth(node) {
-        let currentNode
-        let depth = 0
 
-        if (this.root == null) {
-            return null
-        } else {
-            currentNode = this.root
-        }
+    depth(node) {
+        let currentNode = this.root;
+        let depth = 0;
 
         while (currentNode) {
             if (currentNode === node) {
-                return depth
+                return depth;
             } else {
-                depth++
+                depth++;
             }
 
             if (currentNode.rootNode > node.rootNode) {
-                currentNode = currentNode.leftNode
+                currentNode = currentNode.leftNode;
             } else if (currentNode.rootNode < node.rootNode) {
-                currentNode = currentNode.rightNode
+                currentNode = currentNode.rightNode;
             } else {
-                return null
+                return null;
             }
-
         }
 
-        return null
+        return null;
     }
+
     isBalanced() {
-        this.checkRoot()
+        if (!this.checkRoot()) {
+            return null;
+        }
 
-        const leftHeight = this.height(this.root.leftNode)
-        const rightHeight = this.height(this.root.rightNode)
+        const leftHeight = this.height(this.root.leftNode);
+        const rightHeight = this.height(this.root.rightNode);
 
-        return Math.abs(leftHeight - rightHeight) <= 1
-    }
-    rebalance() {
-        this.checkRoot()
-        let nodeList = []
-
-        this.traverseLevels([this.root], (levelArray) => { nodeList = nodeList.concat(levelArray) })
-        nodeList = nodeList.map(node => node.rootNode)
-
-
-        this.root = this.buildTree(nodeList.sort((a, b) => a - b))
+        return Math.abs(leftHeight - rightHeight) <= 1;
     }
 }
 
-export default Tree
+export default Tree;
