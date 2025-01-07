@@ -59,7 +59,6 @@ class Tree {
         }
         return null
     }
-
     findParent(value) {
         let currentNode = this.root
 
@@ -74,7 +73,6 @@ class Tree {
         }
         return null
     }
-
     deleteItem(value) {
         // We find the node with the root == value
         let currentNode = this.find(value)
@@ -94,7 +92,6 @@ class Tree {
 
             return currentNode
         }
-
 
         // Case 2: Node with two childs
         if (currentNode.leftNode && currentNode.rightNode) {
@@ -117,7 +114,6 @@ class Tree {
         }
 
         // Case 3: Node with one child 
-
         const childNode = currentNode.leftNode || currentNode.rightNode
 
         // Check if the current node is the root
@@ -130,9 +126,8 @@ class Tree {
         }
 
         return currentNode
-
-
     }
+
     levelOrder(callback = null) {
         if (!callback) {
             throw new Error("Callback function required")
@@ -157,8 +152,77 @@ class Tree {
             nodeQueue.push(this.root)
             recursiveNodePushing()
         }
-
         nodeArray.forEach(node => callback(node.rootNode))
+    }
+
+    height(node) {
+        if (!node){
+            return -1
+        }
+        let Height = 0
+
+        function traverseLevels(array = [node]) {
+
+            let levelArray = []
+            if (array.length == 0) {
+                return
+            }
+
+            array.forEach((currentNode) => {
+                if (!currentNode.leftNode && !currentNode.rightNode){
+                    return
+                }
+                if (currentNode.leftNode) levelArray.push(currentNode.leftNode)
+                if (currentNode.rightNode) levelArray.push(currentNode.rightNode)
+            })
+
+            Height++
+            traverseLevels(levelArray)
+        }
+
+        traverseLevels()
+        return Height + 1
+    }
+
+    depth(node) {
+        let currentNode
+        let depth = 0
+
+        if (this.root == null) {
+            return null
+        } else {
+            currentNode = this.root
+        }
+
+        while (currentNode) {
+            if (currentNode === node) {
+                return depth
+            } else {
+                depth++
+            }
+
+            if (currentNode.rootNode > node.rootNode) {
+                currentNode = currentNode.leftNode
+            } else if (currentNode.rootNode < node.rootNode) {
+                currentNode = currentNode.rightNode
+            } else {
+                return null
+            }
+
+        }
+
+        return null
+    }
+
+    isBalanced(){
+        if (!this.root){
+            return null
+        }
+
+        const leftHeight = this.height(this.root.leftNode)
+        const rightHeight = this.height(this.root.rightNode)
+
+        return Math.abs(leftHeight - rightHeight) <= 1
     }
 }
 
