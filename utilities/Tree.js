@@ -155,33 +155,33 @@ class Tree {
         nodeArray.forEach(node => callback(node.rootNode))
     }
 
+    traverseLevels(array, callback) {
+
+        let levelArray = []
+        if (array.length == 0) {
+            return
+        }
+
+        array.forEach((currentNode) => {
+            if (!currentNode.leftNode && !currentNode.rightNode){
+                return
+            }
+            if (currentNode.leftNode) levelArray.push(currentNode.leftNode)
+            if (currentNode.rightNode) levelArray.push(currentNode.rightNode)
+        })
+
+        callback(levelArray)
+        traverseLevels(levelArray, callback)
+    }
+
     height(node) {
         if (!node){
             return -1
         }
-        let Height = 0
+        let height = 0
 
-        function traverseLevels(array = [node]) {
-
-            let levelArray = []
-            if (array.length == 0) {
-                return
-            }
-
-            array.forEach((currentNode) => {
-                if (!currentNode.leftNode && !currentNode.rightNode){
-                    return
-                }
-                if (currentNode.leftNode) levelArray.push(currentNode.leftNode)
-                if (currentNode.rightNode) levelArray.push(currentNode.rightNode)
-            })
-
-            Height++
-            traverseLevels(levelArray)
-        }
-
-        traverseLevels()
-        return Height + 1
+        this.traverseLevels([node], ()=>{height++})
+        return height
     }
 
     depth(node) {
