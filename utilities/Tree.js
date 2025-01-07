@@ -25,10 +25,11 @@ class Tree {
         if (this.root == null) {
             return null
         } else {
-            return true
+            throw new Error("Root node not found.")
         }
     }
     insert(value) {
+        this.checkRoot()
         const newNode = new Node(value)
         let currentNode = this.root
 
@@ -50,8 +51,8 @@ class Tree {
             }
         }
     }
-
     find(value) {
+        this.checkRoot()
         let currentNode = this.root
 
         while (currentNode) {
@@ -80,6 +81,7 @@ class Tree {
         return null
     }
     deleteItem(value) {
+        this.checkRoot()
         // We find the node with the root == value
         let currentNode = this.find(value)
         if (!currentNode) return null
@@ -133,7 +135,6 @@ class Tree {
 
         return currentNode
     }
-
     levelOrder(callback = null) {
         if (!callback) {
             throw new Error("Callback function required")
@@ -160,7 +161,6 @@ class Tree {
         }
         nodeArray.forEach(node => callback(node.rootNode))
     }
-
     traverseLevels(array, callback) {
 
         let levelArray = []
@@ -179,7 +179,6 @@ class Tree {
         callback(levelArray)
         traverseLevels(levelArray, callback)
     }
-
     height(node) {
         if (!node) {
             return -1
@@ -189,7 +188,6 @@ class Tree {
         this.traverseLevels([node], () => { height++ })
         return height
     }
-
     depth(node) {
         let currentNode
         let depth = 0
@@ -219,11 +217,8 @@ class Tree {
 
         return null
     }
-
     isBalanced() {
-        if (!this.root) {
-            return null
-        }
+        this.checkRoot()
 
         const leftHeight = this.height(this.root.leftNode)
         const rightHeight = this.height(this.root.rightNode)
@@ -235,8 +230,8 @@ class Tree {
         let nodeList = []
 
         this.traverseLevels([this.root], (levelArray) => { nodeList = nodeList.concat(levelArray) })
-        nodeList = nodeList.map (node => node.rootNode)
-        
+        nodeList = nodeList.map(node => node.rootNode)
+
 
         this.root = this.buildTree(nodeList.sort((a, b) => a - b))
     }
