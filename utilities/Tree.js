@@ -21,7 +21,13 @@ class Tree {
         // Returning the Node created with recursivity
         return new Node(rootNode, this.buildTree(leftNode), this.buildTree(rightNode))
     }
-
+    checkRoot() {
+        if (this.root == null) {
+            return null
+        } else {
+            return true
+        }
+    }
     insert(value) {
         const newNode = new Node(value)
         let currentNode = this.root
@@ -163,7 +169,7 @@ class Tree {
         }
 
         array.forEach((currentNode) => {
-            if (!currentNode.leftNode && !currentNode.rightNode){
+            if (!currentNode.leftNode && !currentNode.rightNode) {
                 return
             }
             if (currentNode.leftNode) levelArray.push(currentNode.leftNode)
@@ -175,12 +181,12 @@ class Tree {
     }
 
     height(node) {
-        if (!node){
+        if (!node) {
             return -1
         }
         let height = 0
 
-        this.traverseLevels([node], ()=>{height++})
+        this.traverseLevels([node], () => { height++ })
         return height
     }
 
@@ -214,8 +220,8 @@ class Tree {
         return null
     }
 
-    isBalanced(){
-        if (!this.root){
+    isBalanced() {
+        if (!this.root) {
             return null
         }
 
@@ -223,6 +229,16 @@ class Tree {
         const rightHeight = this.height(this.root.rightNode)
 
         return Math.abs(leftHeight - rightHeight) <= 1
+    }
+    rebalance() {
+        this.checkRoot()
+        let nodeList = []
+
+        this.traverseLevels([this.root], (levelArray) => { nodeList = nodeList.concat(levelArray) })
+        nodeList = nodeList.map (node => node.rootNode)
+        
+
+        this.root = this.buildTree(nodeList.sort((a, b) => a - b))
     }
 }
 
